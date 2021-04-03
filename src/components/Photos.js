@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import firebase from "../firebase/config"
+import firebase from "../firebase/Config"
 export default class Photos extends Component {
     state = {
         photos: []
