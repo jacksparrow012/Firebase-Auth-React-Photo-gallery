@@ -1,43 +1,52 @@
 import React, { Component } from 'react'
-import firebase from "../firebase/Config"
-import Dropzone from "react-dropzone"
-import Progress from "./Progress"
+import firebase from "../firebase/Config";
+import Dropzone from 'react-dropzone';
+import Progress from './Progress';
 export default class Upload extends Component {
     state = {
         progress: 0,
         user_id: localStorage.getItem("user_id"),
-        isUploading: null
-    }
-    handleUploadFiles(files) {
+        isUploading: null,
+    };
+
+
+    handleUpload(files) {
         for (let i = 0; i < files.length; i++) {
             const uploadTask = firebase.storage().ref(`images/${files.item(i).name}`)
-                .put(files.item(i))
-            uploadTask.on("state_changed", (snapshot) => {
-                const isUploading = true;
-                this.setState({ isUploading })
-                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-                this.setState({ progress })
-            }, (err) => {
-            },
+                .put(files.item(i));
+            uploadTask.on("state_changed",
+                (snapshot) => {
+                    const isUploading = true;
+                    this.setState({ isUploading });
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    this.setState({ progress });
+                },
+                (error) => {
+                },
                 () => {
-                    firebase.storage.ref("images")
+                    firebase.storage().ref("images")
                         .child(files.item(i).name)
                         .getDownloadURL()
                         .then((url) => {
                             const isUploading = false;
-                            this.setState({ isUploading })
-                            const images = {
+                            this.setState({ isUploading });
+                            const image = {
                                 url: url,
                                 added: new Date()
                             }
-                            firebase.firestore().collection(this.state.user_id).add(images).then(res => {
-                                this.props.history.push("/")
-                            })
-                        })
-                })
+                            firebase.firestore().collection(this.state.user_id).add(image).then(res => {
+                                this.props.history.push("/");
+                            });
+
+                        });
+                });
         }
+
     }
+
+
     render() {
+
         return (
             <div className="mt-5 text-center form-group">
 
@@ -61,6 +70,7 @@ export default class Upload extends Component {
                 </Dropzone>
 
             </div>
+
 
         )
     }
